@@ -200,7 +200,7 @@ export default function App() {
       {/* Top Navbar Header */}
       <header className="top-navbar">
         <div className="navbar-brand">
-          <div className="brand-logo">AR</div>
+          <img src="/logo.jpg" alt="AlgoRoute Logo" className="brand-logo-img" />
           <div>
             <div className="brand-title">AlgoRoute</div>
             <div className="brand-subtitle">Intelligent Machine Learning Strategy Recommendation Engine</div>

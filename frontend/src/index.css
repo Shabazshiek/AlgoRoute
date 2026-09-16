@@ -121,6 +121,16 @@ body {
   box-shadow: 0 3px 10px rgba(245, 158, 11, 0.4);
 }
 
+.brand-logo-img {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  background-color: #ffffff;
+}
+
 .brand-title {
   font-size: 1.3rem;
   font-weight: 800;
