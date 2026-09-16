@@ -8,7 +8,7 @@
 ---
 
 
-## 📌 Submission & Raw Data Notice
+##  Submission & Raw Data Notice
 
 > [!IMPORTANT]
 > **Raw Dataset Storage Notice (`data/raw/`)**:  
@@ -21,7 +21,7 @@
 
 ---
 
-## 🌟 Key Features & Capabilities
+##  Key Features & Capabilities
 
 - **21 Dataset Meta-Features**: Extracted statistical, structural, target class entropy, and landmarking probe metrics in seconds.
 - **Hybrid Meta-Router**: Pre-trained machine learning router trained across OpenML benchmark datasets to predict expected F1 scores for candidate algorithms.
@@ -32,7 +32,7 @@
 
 ---
 
-## ⚙️ Prerequisites & System Requirements
+##  Prerequisites & System Requirements
 
 ### Required Runtimes & Dependencies
 - **Python**: Version 3.9, 3.10, 3.11, 3.12, 3.13, or 3.14.
@@ -41,7 +41,7 @@
 
 ---
 
-## 📥 Step-by-Step Installation Guide
+##  Step-by-Step Installation Guide
 
 Follow these simple steps to install and set up the prototype environment:
 
@@ -81,7 +81,7 @@ cd ..
 
 ---
 
-## 🧪 How to Test the Prototype
+##  How to Test the Prototype
 
 We provide comprehensive automated test suites as well as sample datasets for hands-on evaluation.
 
@@ -116,7 +116,7 @@ You can test the Meta-Router immediately using sample datasets provided in `data
 
 ---
 
-## 🚀 How to Run the Prototype
+##  How to Run the Prototype
 
 You can run and interact with AlgoRoute through the **Web Dashboard**, the **Swagger API Docs**, or **Python Scripts**.
 
@@ -189,7 +189,7 @@ print("Explanation:", explanation["summary"])
 
 ---
 
-## 🔄 Re-Building the Dataset & Training from Scratch (Optional)
+##  Re-Building the Dataset & Training from Scratch (Optional)
 
 If an evaluator or reviewer wants to re-fetch raw OpenML datasets and re-train the Meta-Router model end-to-end:
 
@@ -213,7 +213,7 @@ python -m src.meta_router
 
 ---
 
-## 📁 Repository Directory Structure
+##  Repository Directory Structure
 
 ```text
 Meta-Learning Stratergy Router/
@@ -254,7 +254,7 @@ Meta-Learning Stratergy Router/
 
 ---
 
-## 🔬 Scientific Foundation: The 21 Meta-Features
+##  Scientific Foundation: The 21 Meta-Features
 
 AlgoRoute calculates **21 dataset meta-features** grouped into 4 functional domains:
 
@@ -265,7 +265,7 @@ AlgoRoute calculates **21 dataset meta-features** grouped into 4 functional doma
 
 ---
 
-## 🤝 Project Alignment & Summary
+##  Project Alignment & Summary
 
 - **Product Name**: AlgoRoute
 - **Project Context**: IBM Project Use Case #20 — Meta-Learning Machine Learning Strategy Router
