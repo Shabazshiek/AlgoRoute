@@ -1,3 +1,17 @@
+# FastAPI backend entry point.
+# Creates the REST API used by the frontend.
+# Main responsibilities:
+# - Receive uploaded CSV files
+# - Validate/process datasets
+# - Run dataset health checks
+# - Extract meta-features
+# - Load/use the trained Meta-Router
+# - Return results to react frontend 
+# - API Enpoints include:
+# - /api/recommand 
+# - /api/health-check
+# - /api/meta-features
+
 import os
 import io
 import logging

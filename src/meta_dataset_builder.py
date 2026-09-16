@@ -98,7 +98,7 @@ class MetaDatasetBuilder:
                 # Save raw dataset copy locally
                 self.fetcher.save_raw_dataset(X, y, dataset_name)
                 
-                # Extract meta-features
+                # Extract meta-features extracting the Meta-Features like X,Y for Training and Target purpose 
                 meta_feats = self.extractor.extract_meta_features(X, y, dataset_name=dataset_name)
                 meta_feats["openml_id"] = dataset_id
                 records.append(meta_feats)
