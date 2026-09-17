@@ -45,16 +45,27 @@ if ($endpoint === 'privacy') {
 // GET /api/feature-importances
 if ($endpoint === 'feature-importances') {
     echo json_encode([
-        ["meta_feature" => "ratio_instances_to_features", "importance" => 0.142],
-        ["meta_feature" => "landmarker_decision_stump", "importance" => 0.128],
-        ["meta_feature" => "class_imbalance_ratio", "importance" => 0.115],
-        ["meta_feature" => "mean_correlation_abs", "importance" => 0.098],
-        ["meta_feature" => "landmarker_naive_bayes", "importance" => 0.087],
-        ["meta_feature" => "skewness_mean", "importance" => 0.076],
-        ["meta_feature" => "normalized_class_entropy", "importance" => 0.065],
-        ["meta_feature" => "n_numeric_features", "importance" => 0.054],
-        ["meta_feature" => "ratio_categorical_features", "importance" => 0.048],
-        ["meta_feature" => "kurtosis_mean", "importance" => 0.042]
+        ["meta_feature" => "ratio_instances_to_features", "importance" => 0.1420],
+        ["meta_feature" => "landmarker_decision_stump", "importance" => 0.1280],
+        ["meta_feature" => "class_imbalance_ratio", "importance" => 0.1150],
+        ["meta_feature" => "mean_correlation_abs", "importance" => 0.0980],
+        ["meta_feature" => "landmarker_naive_bayes", "importance" => 0.0870],
+        ["meta_feature" => "skewness_mean", "importance" => 0.0760],
+        ["meta_feature" => "normalized_class_entropy", "importance" => 0.0650],
+        ["meta_feature" => "n_numeric_features", "importance" => 0.0540],
+        ["meta_feature" => "ratio_categorical_features", "importance" => 0.0480],
+        ["meta_feature" => "kurtosis_mean", "importance" => 0.0420],
+        ["meta_feature" => "majority_class_percentage", "importance" => 0.0350],
+        ["meta_feature" => "class_entropy", "importance" => 0.0310],
+        ["meta_feature" => "skewness_std", "importance" => 0.0240],
+        ["meta_feature" => "n_instances", "importance" => 0.0180],
+        ["meta_feature" => "n_features", "importance" => 0.0140],
+        ["meta_feature" => "n_classes", "importance" => 0.0090],
+        ["meta_feature" => "kurtosis_std", "importance" => 0.0060],
+        ["meta_feature" => "ratio_numeric_features", "importance" => 0.0050],
+        ["meta_feature" => "missing_value_ratio", "importance" => 0.0020],
+        ["meta_feature" => "n_categorical_features", "importance" => 0.0010],
+        ["meta_feature" => "n_missing_values", "importance" => 0.0000]
     ]);
     exit();
 }
