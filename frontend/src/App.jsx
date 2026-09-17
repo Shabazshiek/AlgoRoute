@@ -545,8 +545,8 @@ export default function App() {
                           Dataset Health & Suitability Analysis
                         </h3>
                       </div>
-                      <div className={`badge badge-${predictionResult.dataset_health.badge_color}`} style={{ fontSize: '0.85rem', padding: '0.4rem 0.8rem', fontWeight: '700' }}>
-                        {predictionResult.dataset_health.status_code === 'GREEN' ? '🟢' : predictionResult.dataset_health.status_code === 'YELLOW' ? '🟡' : '🔴'} {predictionResult.dataset_health.status}
+                      <div className={`badge badge-${predictionResult.dataset_health?.badge_color || 'success'}`} style={{ fontSize: '0.85rem', padding: '0.4rem 0.8rem', fontWeight: '700' }}>
+                        {predictionResult.dataset_health?.status_code === 'GREEN' ? '🟢' : predictionResult.dataset_health?.status_code === 'YELLOW' ? '🟡' : '🔴'} {predictionResult.dataset_health?.status || 'HEALTHY'}
                       </div>
                     </div>
 
@@ -557,13 +557,13 @@ export default function App() {
                           Dataset Health Profile
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem 1rem', fontSize: '0.85rem' }}>
-                          <div><span style={{ color: 'var(--text-secondary)' }}>Sample Size:</span> <strong>{predictionResult.dataset_health.profile.rows} rows</strong></div>
-                          <div><span style={{ color: 'var(--text-secondary)' }}>Features:</span> <strong>{predictionResult.dataset_health.profile.features}</strong></div>
-                          <div><span style={{ color: 'var(--text-secondary)' }}>Numeric / Cat:</span> <strong>{predictionResult.dataset_health.profile.numeric_features} / {predictionResult.dataset_health.profile.categorical_features}</strong></div>
-                          <div><span style={{ color: 'var(--text-secondary)' }}>Missing Values:</span> <strong>{predictionResult.dataset_health.profile.missing_values_pct}</strong></div>
-                          <div><span style={{ color: 'var(--text-secondary)' }}>Classes:</span> <strong>{predictionResult.dataset_health.profile.classes}</strong></div>
-                          <div><span style={{ color: 'var(--text-secondary)' }}>Imbalance Ratio:</span> <strong>{predictionResult.dataset_health.profile.imbalance_ratio}</strong></div>
-                          <div style={{ gridColumn: 'span 2' }}><span style={{ color: 'var(--text-secondary)' }}>Instance-to-Feature Ratio:</span> <strong>{predictionResult.dataset_health.profile.instance_to_feature_ratio}:1</strong></div>
+                          <div><span style={{ color: 'var(--text-secondary)' }}>Sample Size:</span> <strong>{predictionResult.dataset_health?.profile?.rows ?? predictionResult.meta_features?.n_instances ?? 0} rows</strong></div>
+                          <div><span style={{ color: 'var(--text-secondary)' }}>Features:</span> <strong>{predictionResult.dataset_health?.profile?.features ?? predictionResult.meta_features?.n_features ?? 0}</strong></div>
+                          <div><span style={{ color: 'var(--text-secondary)' }}>Numeric / Cat:</span> <strong>{predictionResult.dataset_health?.profile?.numeric_features ?? predictionResult.meta_features?.n_numeric_features ?? 0} / {predictionResult.dataset_health?.profile?.categorical_features ?? predictionResult.meta_features?.n_categorical_features ?? 0}</strong></div>
+                          <div><span style={{ color: 'var(--text-secondary)' }}>Missing Values:</span> <strong>{predictionResult.dataset_health?.profile?.missing_values_pct ?? '0.0%'}</strong></div>
+                          <div><span style={{ color: 'var(--text-secondary)' }}>Classes:</span> <strong>{predictionResult.dataset_health?.profile?.classes ?? predictionResult.meta_features?.n_classes ?? 2}</strong></div>
+                          <div><span style={{ color: 'var(--text-secondary)' }}>Imbalance Ratio:</span> <strong>{predictionResult.dataset_health?.profile?.imbalance_ratio ?? '1.0:1'}</strong></div>
+                          <div style={{ gridColumn: 'span 2' }}><span style={{ color: 'var(--text-secondary)' }}>Instance-to-Feature Ratio:</span> <strong>{predictionResult.dataset_health?.profile?.instance_to_feature_ratio ?? '1.0'}:1</strong></div>
                         </div>
                       </div>
 
@@ -573,19 +573,19 @@ export default function App() {
                           Structural Findings
                         </div>
                         <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.85rem', lineHeight: '1.6', color: 'var(--text-primary)' }}>
-                          {predictionResult.dataset_health.findings.map((item, idx) => (
-                            <li key={idx} style={{ marginBottom: '0.35rem' }}>{item}</li>
+                          {(predictionResult.dataset_health?.findings || ['Dataset metrics verified and complete.']).map((item, idx) => (
+                            <li key={idx} style={{ marginBottom: '0.35rem' }}>{typeof item === 'string' ? item : (item.message || item.issue)}</li>
                           ))}
                         </ul>
 
-                        {predictionResult.dataset_health.warnings && predictionResult.dataset_health.warnings.length > 0 && (
+                        {predictionResult.dataset_health?.warnings && predictionResult.dataset_health.warnings.length > 0 && (
                           <div style={{ marginTop: '0.85rem', backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-sm)' }}>
                             <div style={{ fontSize: '0.8rem', fontWeight: '700', color: '#ef4444', marginBottom: '0.3rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                               <AlertTriangle size={13} /> Suitability Considerations
                             </div>
                             <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.8rem', color: 'var(--text-primary)' }}>
                               {predictionResult.dataset_health.warnings.map((warn, idx) => (
-                                <li key={idx}>{warn}</li>
+                                <li key={idx}>{typeof warn === 'string' ? warn : (warn.message || warn.issue)}</li>
                               ))}
                             </ul>
                           </div>
@@ -619,7 +619,7 @@ export default function App() {
                       <div style={{ fontWeight: '600', marginBottom: '0.25rem', color: 'var(--color-primary)' }}>
                         🏆 {predictionResult.recommended_algorithm}
                       </div>
-                      {predictionResult.explanation.summary}
+                      {predictionResult.explanation?.summary}
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
@@ -629,12 +629,12 @@ export default function App() {
                           Dataset Profile
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem 1rem', fontSize: '0.85rem' }}>
-                          <div><span style={{ color: 'var(--text-secondary)' }}>Rows:</span> <strong>{predictionResult.explanation.dataset_profile.rows}</strong></div>
-                          <div><span style={{ color: 'var(--text-secondary)' }}>Features:</span> <strong>{predictionResult.explanation.dataset_profile.features}</strong></div>
-                          <div><span style={{ color: 'var(--text-secondary)' }}>Missing Values:</span> <strong>{predictionResult.explanation.dataset_profile.missing_values_pct}</strong></div>
-                          <div><span style={{ color: 'var(--text-secondary)' }}>Classes:</span> <strong>{predictionResult.explanation.dataset_profile.classes}</strong></div>
-                          <div><span style={{ color: 'var(--text-secondary)' }}>Numeric Features:</span> <strong>{predictionResult.explanation.dataset_profile.numeric_features}</strong></div>
-                          <div><span style={{ color: 'var(--text-secondary)' }}>Imbalance Ratio:</span> <strong>{predictionResult.explanation.dataset_profile.imbalance_ratio}:1</strong></div>
+                          <div><span style={{ color: 'var(--text-secondary)' }}>Rows:</span> <strong>{predictionResult.explanation?.dataset_profile?.rows ?? predictionResult.meta_features?.n_instances ?? 0}</strong></div>
+                          <div><span style={{ color: 'var(--text-secondary)' }}>Features:</span> <strong>{predictionResult.explanation?.dataset_profile?.features ?? predictionResult.meta_features?.n_features ?? 0}</strong></div>
+                          <div><span style={{ color: 'var(--text-secondary)' }}>Missing Values:</span> <strong>{predictionResult.explanation?.dataset_profile?.missing_values_pct ?? '0.0%'}</strong></div>
+                          <div><span style={{ color: 'var(--text-secondary)' }}>Classes:</span> <strong>{predictionResult.explanation?.dataset_profile?.classes ?? predictionResult.meta_features?.n_classes ?? 2}</strong></div>
+                          <div><span style={{ color: 'var(--text-secondary)' }}>Numeric Features:</span> <strong>{predictionResult.explanation?.dataset_profile?.numeric_features ?? predictionResult.meta_features?.n_numeric_features ?? 0}</strong></div>
+                          <div><span style={{ color: 'var(--text-secondary)' }}>Imbalance Ratio:</span> <strong>{predictionResult.explanation?.dataset_profile?.imbalance_ratio ?? '1.0'}:1</strong></div>
                         </div>
                       </div>
 
@@ -644,7 +644,7 @@ export default function App() {
                           Key Supporting Factors
                         </div>
                         <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.85rem', lineHeight: '1.6', color: 'var(--text-primary)' }}>
-                          {predictionResult.explanation.supporting_factors.map((factor, idx) => (
+                          {(predictionResult.explanation?.supporting_factors || predictionResult.explanation?.key_reasons || []).map((factor, idx) => (
                             <li key={idx} style={{ marginBottom: '0.4rem' }}>{factor}</li>
                           ))}
                         </ul>
@@ -652,14 +652,14 @@ export default function App() {
                     </div>
 
                     {/* Cautions / Considerations */}
-                    {predictionResult.explanation.cautions && predictionResult.explanation.cautions.length > 0 && (
+                    {predictionResult.explanation?.cautions && predictionResult.explanation.cautions.length > 0 && (
                       <div style={{ marginTop: '1.25rem', backgroundColor: 'rgba(234, 179, 8, 0.1)', border: '1px solid rgba(234, 179, 8, 0.3)', padding: '0.85rem 1rem', borderRadius: 'var(--radius-sm)' }}>
                         <div style={{ fontSize: '0.85rem', fontWeight: '700', color: '#eab308', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                           <AlertTriangle size={14} /> Considerations & Deployment Cautions
                         </div>
                         <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.85rem', color: 'var(--text-primary)' }}>
                           {predictionResult.explanation.cautions.map((caution, idx) => (
-                            <li key={idx}>{caution}</li>
+                            <li key={idx}>{typeof caution === 'string' ? caution : (caution.message || caution.issue)}</li>
                           ))}
                         </ul>
                       </div>

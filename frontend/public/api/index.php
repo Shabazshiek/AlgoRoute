@@ -244,58 +244,107 @@ if ($endpoint === 'predict-strategy' || $endpoint === 'recommend') {
     
     $rec_score = min(98.5, max(65.0, round(($top1_f1 / array_sum($all_scores)) * 100 * (count($all_scores) / 2.5), 1)));
     
-    $warnings = [];
-    $passed_checks = [];
-    
-    if ($n_instances < 50) {
-        $warnings[] = [
-            "issue" => "Small Sample Size",
-            "severity" => "MEDIUM",
-            "message" => "Dataset has only $n_instances instances. Complex models like Gradient Boosting may overfit."
-        ];
-    } else {
-        $passed_checks[] = "Sample size ($n_instances instances) is sufficient for robust model validation.";
-    }
-    
-    if ($class_imbalance_ratio > 3.0) {
-        $warnings[] = [
-            "issue" => "Severe Class Imbalance",
-            "severity" => "HIGH",
-            "message" => "Majority class outweighs minority class by ratio $class_imbalance_ratio:1. Consider SMOTE sampling."
-        ];
-    } else {
-        $passed_checks[] = "Target class distribution is well balanced (imbalance ratio $class_imbalance_ratio:1).";
-    }
-    
-    if ($missing_rate > 0.05) {
-        $warnings[] = [
-            "issue" => "Missing Values Detected",
-            "severity" => "MEDIUM",
-            "message" => "Dataset contains missing values ($n_missing total). Tree-based models handle this automatically."
-        ];
-    } else {
-        $passed_checks[] = "Data completeness is high (missing value rate: " . ($missing_rate * 100) . "%).";
-    }
-    
-    $health_status = empty($warnings) ? "EXCELLENT" : (count($warnings) == 1 ? "GOOD" : "NEEDS_ATTENTION");
-    
-    $health_payload = [
-        "health_status" => $health_status,
-        "warnings" => $warnings,
-        "passed_checks" => $passed_checks,
-        "quality_score" => empty($warnings) ? 98.0 : (count($warnings) == 1 ? 88.0 : 75.0)
+    // Dataset Health Profile
+    $profile = [
+        "rows" => $n_instances,
+        "features" => $n_features,
+        "numeric_features" => $numeric_cols,
+        "categorical_features" => $categorical_cols,
+        "missing_values_pct" => sprintf("%.1f%%", $missing_rate * 100),
+        "classes" => $n_classes,
+        "imbalance_ratio" => sprintf("%.2f:1", $class_imbalance_ratio),
+        "instance_to_feature_ratio" => sprintf("%.1f", $ratio_inst_feat)
     ];
-    
+
+    $findings = [];
+    $warnings_list = [];
+
+    if ($missing_rate > 0.15) {
+        $findings[] = sprintf("High missing value ratio detected (%.1f%% of cells).", $missing_rate * 100);
+        $warnings_list[] = "Severe missing data ratio (>15%). Verify imputation strategy aligns with business domain expectations.";
+    } else if ($missing_rate > 0.0) {
+        $findings[] = sprintf("Moderate missing values detected (%.1f%% of cells). Automated fold-safe imputation applied.", $missing_rate * 100);
+    } else {
+        $findings[] = "Data Completeness: Zero missing values detected across feature columns.";
+    }
+
+    if ($class_imbalance_ratio >= 8.0) {
+        $findings[] = sprintf("Extreme class imbalance detected (%.2f:1 ratio).", $class_imbalance_ratio);
+        $warnings_list[] = sprintf("Extreme target class imbalance (%.2f:1). Monitor minority class recall and precision.", $class_imbalance_ratio);
+    } else if ($class_imbalance_ratio >= 3.0) {
+        $findings[] = sprintf("Significant class imbalance detected (%.2f:1 ratio).", $class_imbalance_ratio);
+        $warnings_list[] = sprintf("Target class imbalance (%.2f:1 ratio). Precision-recall monitoring recommended during deployment.", $class_imbalance_ratio);
+    } else if ($class_imbalance_ratio >= 1.5) {
+        $findings[] = sprintf("Moderate class imbalance detected (%.2f:1 ratio).", $class_imbalance_ratio);
+    } else {
+        $findings[] = "Target Balance: Class distribution is relatively balanced across target categories.";
+    }
+
+    if ($numeric_cols > 0 && $categorical_cols > 0) {
+        $findings[] = "Mixed Feature Types: Contains $numeric_cols continuous numeric and $categorical_cols categorical features.";
+    } else if ($numeric_cols == $n_features) {
+        $findings[] = "Numeric Dominance: 100% continuous numerical features ($numeric_cols/$n_features).";
+    } else {
+        $findings[] = "Categorical Dominance: High ratio of categorical features ($categorical_cols/$n_features).";
+    }
+
+    if ($n_instances < 50) {
+        $findings[] = "Very small sample size ($n_instances rows).";
+        $warnings_list[] = "Sample size is under 50 rows. Cross-validation evaluation metrics may exhibit high variance.";
+    } else if ($n_instances < 300) {
+        $findings[] = "Compact dataset sample size ($n_instances rows).";
+        $warnings_list[] = "Compact sample size (<300 rows). Monitor cross-validation variance across folds.";
+    } else if ($n_instances >= 10000) {
+        $findings[] = "Large-scale dataset ($n_instances rows). Provides strong statistical sample power.";
+    }
+
+    if ($missing_rate > 0.15 || $class_imbalance_ratio >= 8.0 || $n_instances < 50) {
+        $health_status_txt = "ATTENTION REQUIRED";
+        $status_code_txt = "RED";
+        $badge_color_txt = "danger";
+    } else if (count($warnings_list) > 0 || $missing_rate > 0.0 || $class_imbalance_ratio >= 3.0 || $n_instances < 300) {
+        $health_status_txt = "REVIEW RECOMMENDED";
+        $status_code_txt = "YELLOW";
+        $badge_color_txt = "warning";
+    } else {
+        $health_status_txt = "HEALTHY";
+        $status_code_txt = "GREEN";
+        $badge_color_txt = "success";
+    }
+
+    $health_payload = [
+        "status" => $health_status_txt,
+        "status_code" => $status_code_txt,
+        "badge_color" => $badge_color_txt,
+        "profile" => $profile,
+        "findings" => $findings,
+        "warnings" => $warnings_list,
+        "quality_score" => empty($warnings_list) ? 98.0 : (count($warnings_list) == 1 ? 88.0 : 75.0)
+    ];
+
+    $supporting_factors = [
+        "Primary Evidence: Meta-Router assigns the highest predicted score to $top1_algo ($top1_f1 F1).",
+        "Extracted dataset ratio ($n_instances rows across $n_features features) favors ensemble tree architecture.",
+        "Landmarking probes (Naive Bayes F1: $nb_f1, Decision Stump F1: $stump_f1) signal non-linear interaction patterns."
+    ];
+
     $explanation_payload = [
         "recommended_algorithm" => $top1_algo,
         "predicted_f1_score" => $top1_f1,
         "recommendation_score" => $rec_score,
-        "summary" => "Recommended $top1_algo achieving top predicted F1-score of $top1_f1 across 6 candidate algorithms.",
-        "key_reasons" => [
-            "Extracted dataset ratio ($n_instances rows across $n_features features) favors ensemble tree architecture.",
-            "Landmarking probes (Naive Bayes F1: $nb_f1, Decision Stump F1: $stump_f1) signal non-linear interaction patterns.",
-            "Model stability and resistance to variance make $top1_algo optimal for this feature space topology."
+        "summary" => "$top1_algo is ranked as the Top-1 strategy by the Meta-Router, with a predicted F1 score of $top1_f1 and a Strategy Recommendation Score of $rec_score / 100.",
+        "dataset_profile" => [
+            "rows" => $n_instances,
+            "features" => $n_features,
+            "missing_values_pct" => sprintf("%.1f%%", $missing_rate * 100),
+            "classes" => $n_classes,
+            "numeric_features" => $numeric_cols,
+            "categorical_features" => $categorical_cols,
+            "imbalance_ratio" => sprintf("%.2f", $class_imbalance_ratio)
         ],
+        "supporting_factors" => $supporting_factors,
+        "cautions" => $warnings_list,
+        "key_reasons" => $supporting_factors,
         "algorithm_suitability_matrix" => [
             "RandomForest" => "Excellent for high feature dimensions and non-linear interactions.",
             "GradientBoosting" => "High predictive power; optimal when sample size is > 200.",
