@@ -46,7 +46,7 @@ ChartJS.register(
   Legend
 );
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = "";
 
 const FEATURE_DISPLAY_NAMES = {
   n_instances: "Rows",

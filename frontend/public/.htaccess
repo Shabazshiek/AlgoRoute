@@ -1,0 +1,21 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Direct API endpoints to API handler
+  RewriteRule ^api/status$ api/index.php?endpoint=status [QSA,L]
+  RewriteRule ^api/privacy$ api/index.php?endpoint=privacy [QSA,L]
+  RewriteRule ^api/feature-importances$ api/index.php?endpoint=feature-importances [QSA,L]
+  RewriteRule ^api/evaluation-metrics$ api/index.php?endpoint=evaluation-metrics [QSA,L]
+  RewriteRule ^api/predict-strategy$ api/index.php?endpoint=predict-strategy [QSA,L]
+  RewriteRule ^api/recommend$ api/index.php?endpoint=recommend [QSA,L]
+  RewriteRule ^api/health-check$ api/index.php?endpoint=health-check [QSA,L]
+  RewriteRule ^api/benchmark-dataset$ api/index.php?endpoint=benchmark-dataset [QSA,L]
+  RewriteRule ^api/extract-meta-features$ api/index.php?endpoint=extract-meta-features [QSA,L]
+  RewriteRule ^api/(.*)$ api/index.php?endpoint=$1 [QSA,L]
+
+  # Single Page Application navigation
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.html [L]
+</IfModule>
