@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AlgoRoute — Project Presentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0A0A0C;
+      --card-bg: rgba(18, 18, 22, 0.75);
+      --card-border: rgba(212, 175, 55, 0.25);
+      --gold-primary: #D4AF37;
+      --gold-bright: #F3E5AB;
+      --gold-accent: #E5A93B;
+      --gold-gradient: linear-gradient(135deg, #FFF099 0%, #D4AF37 50%, #AA7C11 100%);
+      --gold-glow: 0 0 25px rgba(212, 175, 55, 0.35);
+      --text-main: #F4F4F6;
+      --text-muted: #A1A1AA;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --font-heading: 'Space Grotesk', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* Ambient Gold Background Glows */
+    .bg-glow-1 {
+      position: absolute;
+      top: -10%;
+      left: -10%;
+      width: 50vw;
+      height: 50vw;
+      background: radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, rgba(0, 0, 0, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-glow-2 {
+      position: absolute;
+      bottom: -10%;
+      right: -10%;
+      width: 60vw;
+      height: 60vw;
+      background: radial-gradient(circle, rgba(229, 169, 59, 0.06) 0%, rgba(0, 0, 0, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Top Progress Bar */
+    .progress-container {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--gold-gradient);
+      width: 6.66%;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.7);
+    }
+
+    /* Top Header Bar */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2.5rem;
+      z-index: 10;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.12);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--gold-gradient);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0A0A0C;
+      font-weight: 800;
+      font-size: 0.9rem;
+      box-shadow: 0 2px 10px rgba(212, 175, 55, 0.4);
+    }
+
+    .brand-text span {
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .slide-counter {
+      font-family: var(--font-heading);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--gold-primary);
+      background: rgba(212, 175, 55, 0.1);
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
+      border: 1px solid rgba(212, 175, 55, 0.25);
+    }
+
+    /* Main Presentation Stage */
+    main {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 4rem;
+      z-index: 5;
+    }
+
+    .slide {
+      position: absolute;
+      width: 100%;
+      max-width: 1200px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(20px) scale(0.98);
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    /* Slide Titles */
+    .slide-tag {
+      font-family: var(--font-heading);
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--gold-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .slide-tag::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--gold-primary);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--gold-primary);
+    }
+
+    .slide-title {
+      font-family: var(--font-heading);
+      font-size: 2.3rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: #FFFFFF;
+    }
+
+    .slide-title span {
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Content Cards & Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(212, 175, 55, 0.5);
+      box-shadow: var(--gold-glow);
+      transform: translateY(-3px);
+    }
+
+    .card-title {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--gold-bright);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-text {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* Custom Highlight Badge */
+    .badge-gold {
+      background: rgba(212, 175, 55, 0.15);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      color: var(--gold-bright);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    /* Bullet List Styling */
+    .bullet-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .bullet-list li {
+      position: relative;
+      padding-left: 1.75rem;
+      font-size: 1rem;
+      color: #E4E4E7;
+      line-height: 1.5;
+    }
+
+    .bullet-list li::before {
+      content: '✦';
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--gold-primary);
+      font-size: 0.9rem;
+    }
+
+    /* Stat Box Display */
+    .stat-box {
+      text-align: center;
+      padding: 1.25rem;
+      background: rgba(212, 175, 55, 0.05);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 12px;
+    }
+
+    .stat-number {
+      font-family: var(--font-heading);
+      font-size: 2.2rem;
+      font-weight: 700;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Table Styling */
+    .gold-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    .gold-table th {
+      background: rgba(212, 175, 55, 0.15);
+      color: var(--gold-bright);
+      font-family: var(--font-heading);
+      text-align: left;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .gold-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+    }
+
+    .gold-table tr:hover {
+      background: rgba(212, 175, 55, 0.05);
+    }
+
+    /* Bottom Navigation Controls */
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2.5rem;
+      z-index: 10;
+      border-top: 1px solid rgba(212, 175, 55, 0.12);
+      background: rgba(10, 10, 12, 0.8);
+      backdrop-filter: blur(10px);
+    }
+
+    .nav-btn {
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      color: var(--gold-bright);
+      padding: 0.6rem 1.4rem;
+      border-radius: 8px;
+      font-family: var(--font-heading);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.25s ease;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      background: var(--gold-gradient);
+      color: #0A0A0C;
+      box-shadow: var(--gold-glow);
+      transform: translateY(-2px);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .hint-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-glow-1"></div>
+  <div class="bg-glow-2"></div>
+
+  <!-- Top Progress Bar -->
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo-icon">A</div>
+      <div class="brand-text">Algo<span>Route</span></div>
+    </div>
+    <div class="slide-counter" id="slideCounter">Slide 1 of 15</div>
+  </header>
+
+  <!-- Main Slide Stage -->
+  <main>
+
+    <!-- SLIDE 1: TITLE SLIDE -->
+    <div class="slide active">
+      <div style="text-align: center; max-width: 900px; margin: 0 auto;">
+        <span class="badge-gold" style="font-size: 0.9rem; margin-bottom: 1.25rem;">IBM Project Use Case #20</span>
+        <h1 style="font-family: var(--font-heading); font-size: 3.2rem; font-weight: 800; line-height: 1.15; margin-bottom: 1.25rem; color: #FFFFFF;">
+          Algo<span>Route</span>
+        </h1>
+        <p style="font-size: 1.35rem; color: var(--gold-bright); font-family: var(--font-heading); font-weight: 500; margin-bottom: 2rem;">
+          Intelligent Machine Learning Strategy Recommendation Engine for Tabular Datasets
+        </p>
+        
+        <div class="grid-2" style="max-width: 750px; margin: 0 auto; text-align: left;">
+          <div class="card" style="border-left: 3px solid var(--gold-primary);">
+            <div style="font-size: 0.8rem; color: var(--gold-primary); text-transform: uppercase; font-weight: 700; margin-bottom: 0.35rem;">Submitted By</div>
+            <div style="font-size: 1.15rem; font-weight: 700; color: #FFF;">Shaik Shabaz</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Reg. No: A24126552275</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Dept of CSE (AI & ML)</div>
+          </div>
+          <div class="card" style="border-left: 3px solid var(--gold-primary);">
+            <div style="font-size: 0.8rem; color: var(--gold-primary); text-transform: uppercase; font-weight: 700; margin-bottom: 0.35rem;">Institution</div>
+            <div style="font-size: 1.05rem; font-weight: 700; color: #FFF;">ANITS (UGC Autonomous)</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Visakhapatnam, Andhra Pradesh</div>
+            <div style="font-size: 0.85rem; color: var(--gold-bright); margin-top: 0.25rem;">Academic Year 2026–2027</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: PROBLEM STATEMENT -->
+    <div class="slide">
+      <div class="slide-tag">Problem Statement & Motivation</div>
+      <h2 class="slide-title">The Challenge of <span>Algorithm Selection</span></h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">⚠️ The "No Free Lunch" Dilemma</div>
+          <p class="card-text">
+            No single machine learning algorithm performs best across all tabular datasets. An algorithm that excels on numeric data may fail on skewed or imbalanced data.
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title">⏳ Compute & Time Waste</div>
+          <p class="card-text">
+            Data scientists typically perform brute-force trial-and-error model training across multiple algorithms, taking hours and consuming high compute power.
+          </p>
+        </div>
+      </div>
+      <div class="card" style="border-top: 3px solid var(--gold-primary);">
+        <div class="card-title">🎯 The Core Question Addressed by AlgoRoute</div>
+        <p class="card-text" style="font-size: 1.05rem; color: #FFF;">
+          <em>"Can we extract the structural and statistical fingerprint of a dataset in &lt; 3 seconds to predict the best ML algorithm without training models on it first?"</em>
+        </p>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: OBJECTIVES & SOLUTION -->
+    <div class="slide">
+      <div class="slide-tag">Project Objectives</div>
+      <h2 class="slide-title">System <span>Goals & Deliverables</span></h2>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-title">⚡ Instant Meta-Routing</div>
+          <p class="card-text">
+            Analyze tabular datasets in &lt; 3 seconds by extracting a 21-dimensional <strong>Dataset DNA</strong>.
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title">🧠 Meta-Learning Model</div>
+          <p class="card-text">
+            Predict expected F1 scores and rank 6 candidate classification algorithms based on OpenML benchmarks.
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-title">🔍 Explainable AI (XAI)</div>
+          <p class="card-text">
+            Generate human-readable <em>"Why This Strategy?"</em> justifications for transparency.
+          </p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🏥 Dataset Health Analyzer</div>
+          <p class="card-text">Detect small sample sizes, extreme class imbalance, and high missingness automatically.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">🔒 100% In-Memory Local Privacy</div>
+          <p class="card-text">Process uploaded CSVs strictly in-memory without persistent disk storage or external cloud APIs.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: THEORETICAL BACKGROUND -->
+    <div class="slide">
+      <div class="slide-tag">Theoretical Foundation</div>
+      <h2 class="slide-title">Meta-Learning: <span>"Learning to Learn"</span></h2>
+      <div class="card" style="margin-bottom: 1rem;">
+        <div class="card-title">🔄 Conventional ML vs. Meta-Learning</div>
+        <div class="grid-2" style="margin-top: 0.5rem;">
+          <div>
+            <span class="badge-gold">Conventional ML</span>
+            <p class="card-text" style="margin-top: 0.35rem;">Learns patterns within a <em>single specific dataset</em> to predict target labels $y$ from feature vector $X$.</p>
+          </div>
+          <div>
+            <span class="badge-gold">Meta-Learning (AlgoRoute)</span>
+            <p class="card-text" style="margin-top: 0.35rem;">Learns patterns across <em>multiple historical datasets</em> to predict algorithm performance from dataset characteristics.</p>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="text-align: center; border-left: 3px solid var(--gold-primary);">
+        <div style="font-family: var(--font-heading); font-size: 1.05rem; color: var(--gold-bright);">
+          Historical OpenML Datasets → Meta-Features + F1 Scores → Meta-Learning Router → Instant Recommendation
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: 21 META-FEATURES (DATASET DNA) -->
+    <div class="slide">
+      <div class="slide-tag">Dataset DNA</div>
+      <h2 class="slide-title">The 21 Dataset <span>Meta-Features</span></h2>
+      <table class="gold-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Extracted Meta-Features</th>
+            <th>Purpose / Significance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Structural</strong></td>
+            <td>Rows, Columns, Instance-to-Feature Ratio, Numeric & Categorical Ratios, Missing Values Rate</td>
+            <td>Quantifies dataset scale, density, and basic shape</td>
+          </tr>
+          <tr>
+            <td><strong>Target / Class</strong></td>
+            <td>Class Count, Majority Class %, Class Imbalance Ratio</td>
+            <td>Detects target distribution skewness & imbalance</td>
+          </tr>
+          <tr>
+            <td><strong>Statistical</strong></td>
+            <td>Mean/Std Skewness, Mean/Std Kurtosis, Mean Absolute Feature Correlation</td>
+            <td>Captures non-linearity, distribution tails & multi-collinearity</td>
+          </tr>
+          <tr>
+            <td><strong>Information-Theoretic</strong></td>
+            <td>Class Entropy, Normalized Class Entropy</td>
+            <td>Measures class uncertainty & information content</td>
+          </tr>
+          <tr>
+            <td><strong>Landmarking Probes</strong></td>
+            <td>Decision Stump F1 Score, Naive Bayes F1 Score</td>
+            <td>Quick micro-tests gauging baseline dataset difficulty</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SLIDE 6: CANDIDATE ML STRATEGIES -->
+    <div class="slide">
+      <div class="slide-tag">Candidate Portfolio</div>
+      <h2 class="slide-title">6 Candidate <span>ML Algorithms</span></h2>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-title">🌲 Random Forest</div>
+          <p class="card-text">Bagging ensemble of decision trees. Robust against non-linear interactions & noise.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">⚡ Gradient Boosting</div>
+          <p class="card-text">Sequential boosting ensemble. High predictive power for structured tabular data.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">📈 Logistic Regression</div>
+          <p class="card-text">Linear probabilistic classifier. Fast baseline for linearly separable feature spaces.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">📍 K-Nearest Neighbors</div>
+          <p class="card-text">Distance-based non-parametric learner. Effective for localized decision boundaries.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">🌿 Decision Tree</div>
+          <p class="card-text">Interpretable rule-based learner. Fast inference and clear decision paths.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">📊 Gaussian Naive Bayes</div>
+          <p class="card-text">Probabilistic generative model assuming independent continuous features.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: SYSTEM ARCHITECTURE & WORKFLOW -->
+    <div class="slide">
+      <div class="slide-tag">Architecture</div>
+      <h2 class="slide-title">System <span>Workflow & Pipeline</span></h2>
+      <div class="grid-2">
+        <div class="card" style="border-top: 3px solid var(--gold-primary);">
+          <div class="card-title">⚙️ Offline Training Pipeline</div>
+          <ul class="bullet-list">
+            <li>Fetch historical benchmark datasets from OpenML</li>
+            <li>Extract 21 meta-features for each benchmark dataset</li>
+            <li>Evaluate candidate algorithms using 5-fold cross-validation</li>
+            <li>Construct Meta-Dataset & train Meta-Router model</li>
+            <li>Serialize trained artifact (`meta_router_model.joblib`)</li>
+          </ul>
+        </div>
+        <div class="card" style="border-top: 3px solid var(--gold-bright);">
+          <div class="card-title">🚀 Online Inference Pipeline (&lt; 3s)</div>
+          <ul class="bullet-list">
+            <li>User uploads new CSV dataset via Web Dashboard</li>
+            <li>Extract 21 meta-features strictly in-memory</li>
+            <li>Run Dataset Health Analyzer & generate warnings</li>
+            <li>Pass Meta-Features into loaded Meta-Router model</li>
+            <li>Rank algorithms, predict F1 scores & render XAI explanation</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: DATASET HEALTH ANALYZER -->
+    <div class="slide">
+      <div class="slide-tag">Quality Control</div>
+      <h2 class="slide-title">Dataset <span>Health Analysis</span></h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🔍 Evaluated Conditions</div>
+          <ul class="bullet-list">
+            <li><strong>Small Sample Size:</strong> Flags datasets with &lt; 50 instances (high variance risk).</li>
+            <li><strong>Severe Class Imbalance:</strong> Flags imbalance ratios &gt; 3:1 or 8:1 (SMOTE recommended).</li>
+            <li><strong>High Missingness:</strong> Flags missing value rates &gt; 5% or 15%.</li>
+            <li><strong>High Dimensionality:</strong> Flags low instance-to-feature ratios (&lt; 5:1).</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">🚦 Health Status Badges</div>
+          <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 0.5rem;">
+            <div style="padding: 0.75rem; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px;">
+              <strong style="color: #4ADE80;">🟢 HEALTHY / GREEN</strong> — Clean, balanced, standard dataset shape.
+            </div>
+            <div style="padding: 0.75rem; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px;">
+              <strong style="color: #FBBF24;">🟡 REVIEW RECOMMENDED / YELLOW</strong> — Minor imbalance or missing values.
+            </div>
+            <div style="padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px;">
+              <strong style="color: #F87171;">🔴 ATTENTION REQUIRED / RED</strong> — Extreme imbalance (&gt;8:1) or tiny sample.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 9: META-ROUTER MODEL & RANKING -->
+    <div class="slide">
+      <div class="slide-tag">Core Prediction Engine</div>
+      <h2 class="slide-title">The <span>Meta-Router Model</span></h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🤖 Model Implementation</div>
+          <p class="card-text">
+            Built using a hybrid multi-output ensemble architecture (<strong>RandomForestRegressor</strong>) trained on extracted meta-feature fingerprints and historical cross-validated F1 scores.
+          </p>
+          <div style="margin-top: 1rem;">
+            <span class="badge-gold">Serialized Artifact</span>
+            <code style="color: var(--gold-bright); font-size: 0.85rem; display: block; margin-top: 0.25rem;">data/processed/meta_router_model.joblib</code>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">📊 Output Metrics</div>
+          <ul class="bullet-list">
+            <li><strong>Predicted F1 Scores:</strong> Estimated F1 score for all 6 candidate algorithms.</li>
+            <li><strong>Algorithm Ranking:</strong> Ordered ranking from Rank #1 (Top Strategy) to Rank #6.</li>
+            <li><strong>Recommendation Score:</strong> Relative strength index scaled from 65.0 to 98.5.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 10: EXPLAINABLE AI (XAI) -->
+    <div class="slide">
+      <div class="slide-tag">Explainable AI</div>
+      <h2 class="slide-title"><span>"Why This Strategy?"</span> Engine</h2>
+      <div class="card" style="border-left: 3px solid var(--gold-primary);">
+        <div class="card-title">💡 Human-Readable Justification</div>
+        <p class="card-text" style="font-size: 1rem; color: #FFF;">
+          Converts numerical meta-features and router predictions into clear natural language explanations to build user trust.
+        </p>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🔑 Supporting Evidence Factors</div>
+          <ul class="bullet-list">
+            <li>Primary prediction margin over runner-up strategy</li>
+            <li>Dataset instance-to-feature density suitability</li>
+            <li>Landmarking probe signals (Decision Stump & Naive Bayes F1)</li>
+            <li>Class entropy and non-linear interaction patterns</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">📋 Algorithm Suitability Matrix</div>
+          <p class="card-text">
+            Provides contextual strengths for all alternative strategies so data scientists understand alternative tradeoffs before model training.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 11: PRIVACY ARCHITECTURE -->
+    <div class="slide">
+      <div class="slide-tag">Data Security</div>
+      <h2 class="slide-title">100% In-Memory <span>Privacy Guarantee</span></h2>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-title">🔒 In-Memory Only</div>
+          <p class="card-text">Uploaded CSV datasets are processed strictly in RAM during request execution and cleaned up immediately.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">🚫 Zero Disk Storage</div>
+          <p class="card-text">User datasets are <strong>never</strong> saved to permanent server disk storage or local databases.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">🛡️ No External APIs</div>
+          <p class="card-text">Zero data transmission to external cloud services or third-party AI APIs (OpenAI, Cloud AI, etc.).</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 12: PRODUCTION DEPLOYMENT -->
+    <div class="slide">
+      <div class="slide-tag">Deployment & Cloud Infrastructure</div>
+      <h2 class="slide-title">Production <span>Hostinger Architecture</span></h2>
+      <div class="card" style="margin-bottom: 1rem;">
+        <div class="card-title">🌐 Live Production URL</div>
+        <div style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--gold-bright);">
+          https://algoroute.orbitonetech.com
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-title">⚛️ React + Vite Frontend</div>
+          <p class="card-text">Optimized single-page web dashboard with dark-gold theme, dynamic charts & drag-and-drop CSV upload.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">⚙️ Native Server API Engine</div>
+          <p class="card-text">Production API handler executing meta-feature extraction, health checks, predictions & XAI on the same domain.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">🔀 Single-Domain Routing</div>
+          <p class="card-text">`.htaccess` rewrite rules route `/api/*` endpoints cleanly while preserving SPA frontend fallback.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 13: EMPIRICAL RESULTS -->
+    <div class="slide">
+      <div class="slide-tag">Experimental Results</div>
+      <h2 class="slide-title">Empirical <span>Performance Evaluation</span></h2>
+      <div class="grid-4">
+        <div class="stat-box">
+          <div class="stat-number">85.0%</div>
+          <div class="stat-label">Average Router F1 Score</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number">50.0%</div>
+          <div class="stat-label">Top-1 Accuracy (Exact Match)</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number">80.0%</div>
+          <div class="stat-label">Top-3 Success Rate</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number">0.0096</div>
+          <div class="stat-label">Average Regret (vs. Oracle)</div>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top: 1rem;">
+        <div class="card">
+          <div class="card-title">📈 Baseline Comparisons</div>
+          <ul class="bullet-list">
+            <li><strong>Oracle Best F1 (Hindsight Max):</strong> 85.97%</li>
+            <li><strong>AlgoRoute Recommended Strategy:</strong> 85.00%</li>
+            <li><strong>Default Random Forest Baseline:</strong> 84.85%</li>
+            <li><strong>Uniform Random Baseline:</strong> 82.80%</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">🧪 Automated Test Suite</div>
+          <p class="card-text" style="font-size: 1.1rem; font-weight: 700; color: #4ADE80; margin-bottom: 0.5rem;">
+            19 Passed out of 19 Pytest Tests (100% Pass Rate)
+          </p>
+          <p class="card-text">Verifies feature extractors, benchmarker pipelines, router predictions, health analyzer & privacy compliance.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 14: LIMITATIONS & FUTURE SCOPE -->
+    <div class="slide">
+      <div class="slide-tag">Future Roadmap</div>
+      <h2 class="slide-title">Limitations & <span>Future Scope</span></h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">⚠️ Present Limitations</div>
+          <ul class="bullet-list">
+            <li>Current scope is tailored to tabular classification problems.</li>
+            <li>Candidate portfolio limited to 6 core classification models.</li>
+            <li>Predicted F1 score is a recommendation guide, not a guarantee.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">🚀 Future Improvements</div>
+          <ul class="bullet-list">
+            <li>Extend meta-learning framework to tabular regression tasks.</li>
+            <li>Expand OpenML benchmark dataset collection to 100+ datasets.</li>
+            <li>Integrate automated hyperparameter recommendation tuning.</li>
+            <li>Support deep learning architectures (TabNet, XGBoost, CatBoost).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 15: CONCLUSION & Q&A -->
+    <div class="slide">
+      <div style="text-align: center; max-width: 900px; margin: 0 auto;">
+        <span class="badge-gold" style="font-size: 0.9rem; margin-bottom: 1.25rem;">Project Completion</span>
+        <h2 style="font-family: var(--font-heading); font-size: 3rem; font-weight: 800; color: #FFFFFF; margin-bottom: 1rem;">
+          Thank <span>You!</span>
+        </h2>
+        <p style="font-size: 1.2rem; color: var(--gold-bright); font-family: var(--font-heading); margin-bottom: 2rem;">
+          AlgoRoute — Intelligent Machine Learning Strategy Recommendation Engine
+        </p>
+
+        <div class="card" style="max-width: 650px; margin: 0 auto; text-align: left; border-top: 3px solid var(--gold-primary);">
+          <div class="card-title" style="justify-content: center;">🔗 Project Resources</div>
+          <ul class="bullet-list" style="gap: 0.5rem; margin-top: 0.5rem;">
+            <li><strong>Live App:</strong> <a href="https://algoroute.orbitonetech.com" target="_blank" style="color: var(--gold-bright); text-decoration: underline;">https://algoroute.orbitonetech.com</a></li>
+            <li><strong>GitHub Repo:</strong> <a href="https://github.com/Shabazshiek/AlgoRoute" target="_blank" style="color: var(--gold-bright); text-decoration: underline;">https://github.com/Shabazshiek/AlgoRoute</a></li>
+            <li><strong>Student:</strong> Shaik Shabaz (Reg. No: A24126552275)</li>
+            <li><strong>Department:</strong> CSE (AI & ML), ANITS Autonomous</li>
+          </ul>
+        </div>
+
+        <div style="margin-top: 2rem; font-family: var(--font-heading); font-size: 1.4rem; font-weight: 700; color: var(--gold-primary);">
+          Questions & Discussion 💬
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer Navigation -->
+  <footer>
+    <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" disabled>
+      ← Previous
+    </button>
+    <div class="hint-text">
+      Use <kbd style="background: rgba(255,255,255,0.1); padding: 0.15rem 0.4rem; border-radius: 4px;">←</kbd> <kbd style="background: rgba(255,255,255,0.1); padding: 0.15rem 0.4rem; border-radius: 4px;">→</kbd> Arrow Keys to Navigate
+    </div>
+    <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">
+      Next →
+    </button>
+  </footer>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const slideCounter = document.getElementById('slideCounter');
+    const progressBar = document.getElementById('progressBar');
+
+    function updateSlide() {
+      slides.forEach((slide, index) => {
+        slide.classList.toggle('active', index === currentSlide);
+      });
+
+      slideCounter.textContent = `Slide ${currentSlide + 1} of ${totalSlides}`;
+      progressBar.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+
+      prevBtn.disabled = currentSlide === 0;
+      nextBtn.disabled = currentSlide === totalSlides - 1;
+    }
+
+    function changeSlide(direction) {
+      if (direction === 1 && currentSlide < totalSlides - 1) {
+        currentSlide++;
+      } else if (direction === -1 && currentSlide > 0) {
+        currentSlide--;
+      }
+      updateSlide();
+    }
+
+    // Keyboard Arrow Navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'Space') {
+        changeSlide(1);
+      } else if (e.key === 'ArrowLeft') {
+        changeSlide(-1);
+      }
+    });
+
+    // Initialize
+    updateSlide();
+  </script>
+</body>
+</html>
